@@ -1,0 +1,22 @@
+const jwt = require('jsonwebtoken');
+const config = require('config');
+
+module.exports = function (req, res, next) {
+  // Get token from header
+  // I don't understand where the x-auth-token part comes from exactly...
+  const token = req.header('x-auth-token');
+  // Check if no token
+  if (!token) {
+    return res.status(401).json({ msg: 'No token, authorization denied' });
+  }
+
+  // Verify Token
+  try {
+    const decoded = jwt.verify(token, config.get('jwtSecret'));
+
+    req.user = decoded.user;
+    next();
+  } catch (err) {
+    res.status(401).json({ meg: 'Token is not valid' });
+  }
+};
